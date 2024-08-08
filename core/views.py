@@ -2,22 +2,26 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from .models import Movie, MovieList
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required,permission_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 import re
 
 # Create your views here.
-@login_required(login_url='login')
+#@login_required(login_url='login')
 def index(request):
     movies = Movie.objects.all()
     featured_movie = movies[len(movies)-1]
 
+    #genre_keys = [genre[0] for genre in Movie.GENRE_CHOICES]
+    #genres=Movie.GENRE_CHOICES
     context = {
         'movies': movies,
         'featured_movie': featured_movie,
+
     }
-    return render(request, 'index.html', context)
+    return render(request, 'movies.html', context)
+
 
 @login_required(login_url='login')
 def movie(request, pk):
@@ -31,15 +35,25 @@ def movie(request, pk):
     return render(request, 'movie.html', context)
 
 @login_required(login_url='login')
-def genre(request, pk):
-    movie_genre = pk
-    movies = Movie.objects.filter(genre=movie_genre)
+def genre(request, genre_key):
+    print(genre_key)
+    movies = Movie.objects.filter(genre=genre_key)
 
     context = {
-        'movies': movies,
-        'movie_genre': movie_genre,
+         'movies': movies,
+         'movie_genre': genre_key,
     }
+
     return render(request, 'genre.html', context)
+# def genre(request, pk):
+#     movie_genre = pk
+#     movies = Movie.objects.filter(genre=movie_genre)
+
+#     context = {
+#         'movies': movies,
+#         'movie_genre': movie_genre,
+#     }
+#     return render(request, 'genre.html', context)
 
 @login_required(login_url='login')
 def search(request):
@@ -55,9 +69,10 @@ def search(request):
     else:
         return redirect('/')
 
+#@permission_required('is_superuser',login_url='index')
 @login_required(login_url='login')
 def my_list(request):
-
+    print(request.user.is_superuser)
     movie_list = MovieList.objects.filter(owner_user=request.user)
     user_movie_list = []
 
@@ -104,7 +119,7 @@ def login(request):
         else:
             messages.info(request, 'Credentials Invalid')
             return redirect('login')
-    
+
     return render(request, 'login.html')
 
 def signup(request):
@@ -138,4 +153,31 @@ def signup(request):
 @login_required(login_url='login')
 def logout(request):
     auth.logout(request)
+
+    response = redirect('login')
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+
+
+
     return redirect('login')
+
+
+
+@login_required(login_url='login')
+def user_profile(request, pk):
+    user = User.objects.get(id=pk)
+
+        # Criar um dicionário com os campos desejados
+    user_fields = {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email
+        }
+
+    context = {
+        'user': user_fields
+    }
+
+    return render(request, 'user_profile.html', context)

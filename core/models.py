@@ -13,6 +13,7 @@ class Movie(models.Model):
         ('romance', 'Romance'),
         ('science_fiction', 'Science Fiction'),
         ('fantasy', 'Fantasy'),
+        ('thriller', 'Thriller'),
     ]
 
     uu_id = models.UUIDField(default=uuid.uuid4)
@@ -28,7 +29,7 @@ class Movie(models.Model):
 
     def __str__(self):
         return self.title
-    
+
 class MovieList(models.Model):
     owner_user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

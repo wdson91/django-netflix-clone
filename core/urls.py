@@ -12,4 +12,5 @@ urlpatterns = [
     path('add-to-list', views.add_to_list, name='add-to-list'),
     path('search', views.search, name='search'),
     path('user-profile/<str:pk>/', views.user_profile, name='user-profile'),
+    path('accounts/profile/<str:pk>/', views.user_profile, name='edit-profile'),
 ]

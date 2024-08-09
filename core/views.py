@@ -168,7 +168,7 @@ def logout(request):
 @login_required(login_url='login')
 def user_profile(request, pk):
     user = User.objects.get(id=pk)
-
+    print(user)
         # Criar um dicionário com os campos desejados
     user_fields = {
             'id': user.id,

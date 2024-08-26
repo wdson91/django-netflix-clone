@@ -166,9 +166,9 @@ def logout(request):
 
 
 @login_required(login_url='login')
-def user_profile(request):
+def user_profile(request,pk):
     user = request.user
-    print(user)
+
         # Criar um dicionário com os campos desejados
     user_fields = {
             'id': user.id,
@@ -181,3 +181,24 @@ def user_profile(request):
     }
 
     return render(request, 'user_profile.html', context)
+
+
+def atualizar_usuario(request):
+    if request.method == 'POST':
+        novo_email = request.POST.get('email')
+        novo_username = request.POST.get('username')
+
+        if User.objects.filter(email=novo_email).exists():
+            messages.error(request, 'O email já está em uso.')
+        elif User.objects.filter(username=novo_username).exists():
+            messages.error(request, 'O nome de usuário já está em uso.')
+        else:
+            usuario = request.user
+            usuario.email = novo_email
+            usuario.username = novo_username
+            usuario.save()
+            messages.success(request, 'Dados atualizados com sucesso!')
+            #return redirect('user_profile', pk=usuario.id)
+            return redirect(f'user-profile/{usuario.id}', pk=usuario.id)
+
+    return render(request, 'user_profile.html', {'user': request.user})
